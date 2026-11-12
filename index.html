@@ -1235,7 +1235,7 @@
       }).filter(Boolean);
     }
     function getScenarioImpactPct(size, action) {
-      const passThroughPct = (size / 100) * 0.4;
+      const passThroughPct = (size / 100) * 0.6;
       return action === 'cut' ? -passThroughPct : passThroughPct;
     }
     function formatMeetingLabel(dateStr) {
@@ -1265,7 +1265,7 @@
       }
       bullets.push('Assumed FOMC moves are translated into estimated pool yield changes using portfolio pass-through assumptions.');
       bullets.push('Estimated pass-through reflects recently published portfolio characteristics, including fixed/floating allocation and WAM/WAL profile.');
-      bullets.push('For longer holding periods, modeled pool earnings reflect a phased yield realization path based on WAL and estimated portfolio turnover.');
+      bullets.push('Each move passes through at 60% and phases into the pool yield evenly over 7 days, starting the day after the meeting.');
       return bullets;
     }
     function buildImpactBullets(clientType, excessEarnings) {
@@ -1425,10 +1425,10 @@
             moves.forEach((move) => {
               const triggerDay = daysUntilMeeting(move.date);
               const impact = getScenarioImpactPct(move.size, move.action);
-              if (d >= triggerDay + 3) {
+              if (d >= triggerDay + 7) {
                 steppedRate += impact;
               } else if (d > triggerDay) {
-                steppedRate += impact * ((d - triggerDay) / 3);
+                steppedRate += impact * ((d - triggerDay) / 7);
               }
             });
           }
@@ -1479,7 +1479,7 @@
           const labels = outsideMoves.map(move => `${formatMeetingLabel(move.date)} (${daysUntilMeeting(move.date)} days from today)`).join(', ');
           horizonNote.textContent = `${labels} ${outsideMoves.length === 1 ? 'falls' : 'fall'} after the ${days}-day holding period, so ${outsideMoves.length === 1 ? 'it does' : 'they do'} not change earnings. Extend Days to Maturity to include ${outsideMoves.length === 1 ? 'that meeting' : 'those meetings'}.`;
         } else {
-          horizonNote.textContent = 'Each assumed Fed move begins to flow into the pool yield after that meeting and only during the holding period. The Choice rate stays locked for the term.';
+          horizonNote.textContent = 'Each assumed Fed move flows into the pool yield at 60%, phased in over 7 days starting the day after that meeting, and only during the holding period. The Choice rate stays locked for the term.';
         }
       }
 
@@ -1496,7 +1496,7 @@
           <li>Liquidity pool yields reflect the most recently published rates available from each provider website.</li>
           <li>Projected earnings are calculated using simple interest on a 365-day basis: Principal × Rate × (Days / 365).</li>
           <li>Assumed FOMC moves affect only the competitor pool. The Choice (term CP) rate is held constant for the selected maturity.</li>
-          <li>Each 25 bp Fed move is modeled as a 10 bp change in pool yield (40% pass-through), starting the day after that meeting and phasing in over three days. A 50 bp move is modeled as 20 bp. Meetings after the holding period have no effect, and moves already reflected in published yields are not applied again.</li>
+          <li>Each Fed move passes through to the pool yield at 60%, so a 25 bp hike becomes a 15 bp rise in pool yield and a 50 bp move becomes 30 bp. Nothing changes on the meeting day itself. The move starts the day after the meeting and phases in evenly over 7 days, reaching the full amount on day 7. Meetings after the holding period have no effect, and moves already reflected in published yields are not applied again.</li>
         </ul>
       `;
 
@@ -1510,10 +1510,10 @@
           moves.forEach((move) => {
             const triggerDay = daysUntilMeeting(move.date);
             const impact = getScenarioImpactPct(move.size, move.action);
-            if (d >= triggerDay + 3) {
+            if (d >= triggerDay + 7) {
               steppedRate += impact;
             } else if (d > triggerDay) {
-              steppedRate += impact * ((d - triggerDay) / 3);
+              steppedRate += impact * ((d - triggerDay) / 7);
             }
           });
         }
