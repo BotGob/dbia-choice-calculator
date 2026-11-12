@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DBIA Choice Pool Comparison Calculator</title>
+  <link rel="stylesheet" href="https://use.typekit.net/lbm4hhl.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --navy: #09344e;
+      --navy-2: #0f4667;
+      --sky: #8fc4ea;
+      --teal: #6ac7c1;
+      --text: #e8f2fb;
+      --muted: rgba(232,242,251,0.66);
+      --line: rgba(151, 187, 226, 0.12);
+      --bg: #07111d;
+      --panel: rgba(12, 28, 48, 0.84);
+      --panel-2: rgba(14, 31, 52, 0.90);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+      --radius: 28px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "sweet-sans-pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(119,189,240,0.12), transparent 24%),
+        radial-gradient(circle at 88% 4%, rgba(24,75,139,0.18), transparent 28%),
+        linear-gradient(180deg, #091427 0%, #0d1b33 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1380px; margin: 0 auto; padding: 28px 22px 42px; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 28px 30px 26px;
+      border: 1px solid rgba(119,189,240,0.12);
+      border-radius: 34px;
+      background: linear-gradient(145deg, rgba(15,33,58,0.94) 0%, rgba(10,22,37,0.88) 100%);
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(119,189,240,0.07), transparent 30%, transparent 70%, rgba(24,75,139,0.05));
+      pointer-events: none;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .brand-lockup {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+    }
+    .brand-copy {
+      line-height: 1;
+    }
+    .brand-copy .top {
+      font-family: "psfournier-std", Georgia, "Times New Roman", serif;
+      font-size: 29px;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .brand-copy .sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: rgba(119,189,240,0.92);
+      font-weight: 700;
+    }
+    .hero-pill {
+      display: none;
+    }
+    h1 {
+      margin: 0 0 6px;
+      max-width: 980px;
+      font-family: "psfournier-std", Georgia, "Times New Roman", serif;
+      font-weight: 300;
+      font-size: clamp(44px, 4.9vw, 66px);
+      line-height: 1.08;
+      letter-spacing: -0.05em;
+      color: #ffffff;
+    }
+    .hero-sub {
+      margin: 0;
+      max-width: 760px;
+      font-size: 15px;
+      line-height: 1.38;
+      color: rgba(232,242,251,0.64);
+    }
+    .as-of {
+      margin-top: 10px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(232,242,251,0.46);
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      align-items: start;
+      overflow: visible;
+    }
+    .panel, .viz {
+      border: 1px solid rgba(119,189,240,0.10);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      overflow: visible;
+    }
+    .panel { padding: 20px; position: relative; z-index: 5; }
+    .viz { padding: 20px; background: var(--panel-2); }
+    h2 {
+      margin: 0 0 14px;
+      font-family: "psfournier-std", Georgia, "Times New Roman", serif;
+      font-weight: 300;
+      font-size: 31px;
+      line-height: 1.2;
+      letter-spacing: 0;
+      color: #ffffff;
+    }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(232,242,251,0.54);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 14px 30px 14px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(119,189,240,0.16);
+      background: rgba(255,255,255,0.04);
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+      transition: 140ms ease;
+    }
+    .scenario-toggle {
+      width: 100%;
+      margin-top: 6px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(119,189,240,0.14);
+      background: rgba(255,255,255,0.03);
+      color: #ffffff;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .scenario-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .scenario-panel {
+      display: none;
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(119,189,240,0.10);
+      background: rgba(255,255,255,0.025);
+    }
+    .scenario-panel.open {
+      display: block;
+    }
+    body.render-pdf {
+      background: #091425;
+      min-height: 0;
+    }
+    body.render-pdf .wrap,
+    body.render-pdf .export-modal,
+    body.render-pdf .email-modal,
+    body.render-pdf script {
+      display: none !important;
+    }
+    body.render-pdf .export-sheet {
+      position: relative;
+      left: 0;
+      top: 0;
+      width: 1580px;
+      min-height: 1030px;
+      margin: 0;
+      display: block;
+      padding: 28px 34px 18px;
+    }
+    .scenario-note {
+      display: none;
+    }
+    .meeting-row {
+      display: grid;
+      grid-template-columns: 1.28fr 0.9fr 0.78fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .meeting-row select {
+      min-width: 0;
+      min-height: 46px;
+      padding: 12px 22px 12px 10px;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .scenario-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .add-meeting-btn,
+    .clear-meetings-btn {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1px dashed rgba(119,189,240,0.20);
+      background: rgba(255,255,255,0.02);
+      color: rgba(232,242,251,0.82);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .clear-meetings-btn {
+      border-style: solid;
+    }
+    .field input:focus, .field select:focus {
+      border-color: rgba(119,189,240,0.28);
+      box-shadow: 0 0 0 4px rgba(119,189,240,0.10);
+    }
+    .field select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, rgba(232,242,251,0.75) 50%), linear-gradient(135deg, rgba(232,242,251,0.75) 50%, transparent 50%);
+      background-position: calc(100% - 15px) calc(50% - 3px), calc(100% - 10px) calc(50% - 3px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+    .field select option {
+      color: #12314f;
+      background: #dbe7f3;
+    }
+    .custom-select {
+      position: relative;
+    }
+    .custom-select-trigger {
+      width: 100%;
+      text-align: left;
+      padding: 14px 30px 14px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(119,189,240,0.16);
+      background: rgba(255,255,255,0.04);
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+      transition: 140ms ease;
+    }
+    .custom-select-trigger:focus {
+      border-color: rgba(119,189,240,0.28);
+      box-shadow: 0 0 0 4px rgba(119,189,240,0.10);
+    }
+    .custom-select-trigger::after {
+      content: "";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      border-right: 2px solid rgba(232,242,251,0.75);
+      border-bottom: 2px solid rgba(232,242,251,0.75);
+      transform: translateY(-70%) rotate(45deg);
+      pointer-events: none;
+    }
+    .custom-select-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #dbe7f3;
+      border: 1px solid rgba(119,189,240,0.18);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 50;
+      box-shadow: 0 16px 28px rgba(0,0,0,0.22);
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .custom-select-menu.open {
+      display: block;
+    }
+    .custom-select-option {
+      width: 100%;
+      text-align: left;
+      padding: 11px 14px;
+      background: #dbe7f3;
+      color: #12314f;
+      font-size: 14px;
+      border: 0;
+      border-bottom: 1px solid rgba(18,49,79,0.08);
+    }
+    .custom-select-option:last-child {
+      border-bottom: 0;
+    }
+    .custom-select-option:hover,
+    .custom-select-option.is-active {
+      background: #cfdceb;
+    }
+    .mini {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: rgba(232,242,251,0.48);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(119,189,240,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+      min-height: 122px;
+    }
+    .stat .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: rgba(232,242,251,0.52);
+      margin-bottom: 10px;
+    }
+    .stat .value {
+      font-size: clamp(24px, 2vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: #ffffff;
+    }
+    .stat .sub {
+      margin-top: 8px;
+      color: rgba(232,242,251,0.52);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .gain { color: var(--teal); }
+    .insight {
+      margin-bottom: 16px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(83,222,192,0.12);
+      background: linear-gradient(180deg, rgba(83,222,192,0.07), rgba(83,222,192,0.025));
+    }
+    .insight .label {
+      color: rgba(232,242,251,0.52);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .insight .text {
+      color: #ffffff;
+      font-size: 17px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .insight .subtext {
+      margin-top: 8px;
+      color: rgba(232,242,251,0.56);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .viz-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .viz-header p {
+      margin: 0;
+      color: rgba(232,242,251,0.60);
+      max-width: 760px;
+    }
+    .chart-shell {
+      padding: 14px 16px 6px;
+      border-radius: 22px;
+      border: 1px solid rgba(119,189,240,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.008));
+      margin-bottom: 16px;
+      min-height: 540px;
+    }
+    .comparison-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .mini-card {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(119,189,240,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    .mini-card .eyebrow {
+      color: rgba(232,242,251,0.50);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .mini-card .line {
+      color: rgba(255,255,255,0.88);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .footer-note {
+      margin-top: 16px;
+      color: rgba(232,242,251,0.42);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .footer-note ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .footer-note li + li {
+      margin-top: 6px;
+    }
+    .export-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 14px;
+    }
+    .export-btn {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(119,189,240,0.16);
+      background: rgba(255,255,255,0.04);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,12,22,0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      width: min(520px, 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(119,189,240,0.14);
+      background: linear-gradient(180deg, rgba(12,28,48,0.98), rgba(9,20,37,0.98));
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .modal-card h3 {
+      margin: 0 0 8px;
+      font-family: "psfournier-std", Georgia, serif;
+      font-size: 28px;
+      font-weight: 400;
+    }
+    .modal-card p {
+      margin: 0 0 16px;
+      color: rgba(232,242,251,0.62);
+      font-size: 14px;
+    }
+    .modal-card .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(232,242,251,0.56);
+      font-weight: 700;
+    }
+    .modal-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .modal-secondary,
+    .modal-primary {
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .modal-secondary {
+      border: 1px solid rgba(119,189,240,0.14);
+      background: rgba(255,255,255,0.03);
+      color: #ffffff;
+    }
+    .modal-primary {
+      border: 1px solid rgba(83,222,192,0.22);
+      background: rgba(83,222,192,0.12);
+      color: #ffffff;
+    }
+    .export-sheet {
+      position: fixed;
+      left: 0;
+      top: -10000px;
+      width: 1580px;
+      min-height: 1020px;
+      background: #091425;
+      color: #e8f2fb;
+      padding: 34px;
+      overflow: hidden;
+      box-sizing: border-box;
+      margin: 0;
+      border: 0;
+      z-index: 300;
+      display: block;
+    }
+    .export-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .export-title {
+      font-family: "psfournier-std", Georgia, serif;
+      font-size: 40px;
+      line-height: 1.04;
+      margin: 0 0 8px;
+    }
+    .export-meta {
+      color: rgba(232,242,251,0.72);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .export-meta.right {
+      text-align: right;
+      min-width: 220px;
+    }
+    .export-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .export-kpi {
+      border: 1px solid rgba(119,189,240,0.10);
+      background: rgba(255,255,255,0.03);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+    .export-kpi .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(232,242,251,0.5);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .export-kpi .value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .export-summary {
+      margin: 0 0 14px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(83,222,192,0.14);
+      background: rgba(83,222,192,0.06);
+    }
+    .export-summary-main {
+      font-size: 20px;
+      line-height: 1.32;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .export-summary-sub {
+      margin-top: 8px;
+      color: rgba(232,242,251,0.62);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .export-chart-wrap {
+      border: 1px solid rgba(119,189,240,0.10);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.025);
+      padding: 14px 10px 12px 10px;
+      margin-bottom: 10px;
+    }
+    .export-chart-wrap canvas {
+      width: 100%;
+      height: 305px;
+    }
+    .export-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    .export-card {
+      border: 1px solid rgba(119,189,240,0.10);
+      background: rgba(255,255,255,0.03);
+      border-radius: 18px;
+      padding: 14px 16px;
+      min-height: 178px;
+    }
+    .export-card h4 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(232,242,251,0.5);
+    }
+    .export-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: rgba(232,242,251,0.82);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+    .export-card li + li {
+      margin-top: 8px;
+    }
+    .export-disclosures {
+      color: rgba(232,242,251,0.52);
+      font-size: 10px;
+      line-height: 1.38;
+      padding-top: 6px;
+      display: block;
+    }
+    .export-disclosures span {
+      display: block;
+      width: 100%;
+      white-space: normal;
+    }
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .stats { grid-template-columns: 1fr; }
+      .hero, .panel, .viz { padding-left: 18px; padding-right: 18px; }
+      .comparison-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+<script>
+  window.__EMBEDDED_RATES__ = {
+  "asOfDate": "2026-10-12",
+  "funds": [
+    {
+      "name": "Florida Prime",
+      "daily": 4.03,
+      "weekly": 4.02,
+      "monthly": 4.0,
+      "yearly": null,
+      "effectiveRate": 4.03,
+      "displayRate": 4.03,
+      "rateSource": "daily"
+    },
+    {
+      "name": "FL STAR Gov't",
+      "daily": 3.8556,
+      "weekly": 3.86,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8556,
+      "displayRate": 3.86,
+      "rateSource": "daily"
+    },
+    {
+      "name": "FL PALM",
+      "daily": null,
+      "weekly": 3.95,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.95,
+      "displayRate": 3.95,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "Florida SAFE",
+      "daily": null,
+      "weekly": 3.93,
+      "monthly": 3.88,
+      "yearly": null,
+      "effectiveRate": 3.93,
+      "displayRate": 3.93,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "FLGIT",
+      "daily": null,
+      "weekly": 3.92,
+      "monthly": 4.56,
+      "yearly": null,
+      "effectiveRate": 3.92,
+      "displayRate": 3.92,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "FLCLASS",
+      "daily": 3.957,
+      "weekly": 3.9572,
+      "monthly": 3.9131,
+      "yearly": null,
+      "effectiveRate": 3.957,
+      "displayRate": 3.96,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Texas CLASS (Prime)",
+      "daily": 4.0013,
+      "weekly": 4.0036,
+      "monthly": 3.967,
+      "yearly": 3.8132,
+      "effectiveRate": 4.0013,
+      "displayRate": 4.0,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Texas CLASS (Gov't)",
+      "daily": 3.7435,
+      "weekly": 3.7447,
+      "monthly": 3.6953,
+      "yearly": 3.5704,
+      "effectiveRate": 3.7435,
+      "displayRate": 3.74,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexPool (Gov't)",
+      "daily": 3.8682,
+      "weekly": 3.87,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8682,
+      "displayRate": 3.87,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexPool (Prime)",
+      "daily": 4.0135,
+      "weekly": 4.01,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.0135,
+      "displayRate": 4.01,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexasDaily (Gov't)",
+      "daily": null,
+      "weekly": 3.86,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.86,
+      "displayRate": 3.86,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "TexasDaily Select",
+      "daily": null,
+      "weekly": 3.99,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.99,
+      "displayRate": 3.99,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "LOGIC (Prime)",
+      "daily": 3.9861,
+      "weekly": 3.99,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.9861,
+      "displayRate": 3.99,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexSTAR (Gov't)",
+      "daily": 3.8478,
+      "weekly": 3.85,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8478,
+      "displayRate": 3.85,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Lone Star Corporate Overnight (Prime)",
+      "daily": 3.9795,
+      "weekly": 3.98,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.9795,
+      "displayRate": 3.98,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Lone Star Government Overnight (Gov't)",
+      "daily": 3.8349,
+      "weekly": 3.82,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8349,
+      "displayRate": 3.83,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Lone Star Corporate Overnight Plus (Prime)",
+      "daily": 3.9865,
+      "weekly": 3.98,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.9865,
+      "displayRate": 3.99,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Texas Connect (Prime)",
+      "daily": 4.0276,
+      "weekly": 4.0307,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.0276,
+      "displayRate": 4.03,
+      "rateSource": "daily"
+    }
+  ]
+};
+</script>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="brand-row">
+        <div class="brand-lockup">
+          <div class="brand-copy">
+            <div class="top">DEEP BLUE</div>
+            <div class="sub">Investment Advisors</div>
+          </div>
+        </div>
+        <div class="hero-pill">DBIA Choice Analysis</div>
+      </div>
+      <h1>Choice Pool Comparison Calculator</h1>
+      <p class="hero-sub">Compare projected interest earned in Choice against a selected liquidity pool over the same holding period.</p>
+      <div class="as-of" id="asOfDisplay">Liquidity Pool rates as of -</div>
+    </section>
+
+    <div class="grid">
+      <aside class="panel">
+        <h2>Calculator Inputs</h2>
+
+        <div class="field">
+          <label for="poolButton">Liquidity Pool</label>
+          <div class="custom-select" id="poolSelectWrap">
+            <button type="button" id="poolButton" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">Select liquidity pool</button>
+            <div class="custom-select-menu" id="poolMenu" role="listbox"></div>
+          </div>
+          <div class="mini">Uses the current daily rate when available, otherwise the current 7-day yield.</div>
+        </div>
+
+        <div class="field">
+          <label for="investmentAmount">Investment Amount</label>
+          <input id="investmentAmount" type="text" value="10,000,000" />
+          <div class="mini">Enter the amount to be evaluated.</div>
+        </div>
+
+        <div class="field">
+          <label for="tenorButton">Days to Maturity</label>
+          <div class="custom-select" id="tenorSelectWrap">
+            <button type="button" id="tenorButton" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">60</button>
+            <div class="custom-select-menu" id="tenorMenu" role="listbox">
+              <button type="button" class="custom-select-option" data-value="60">60</button>
+              <button type="button" class="custom-select-option" data-value="90">90</button>
+              <button type="button" class="custom-select-option" data-value="120">120</button>
+              <button type="button" class="custom-select-option" data-value="150">150</button>
+              <button type="button" class="custom-select-option" data-value="180">180</button>
+              <button type="button" class="custom-select-option" data-value="210">210</button>
+              <button type="button" class="custom-select-option" data-value="240">240</button>
+              <button type="button" class="custom-select-option" data-value="270">270</button>
+              <button type="button" class="custom-select-option" data-value="300">300</button>
+              <button type="button" class="custom-select-option" data-value="330">330</button>
+              <button type="button" class="custom-select-option" data-value="365">365</button>
+              <button type="button" class="custom-select-option" data-value="custom">Custom</button>
+            </div>
+          </div>
+          <div class="mini">Select a standard maturity or enter a custom day count.</div>
+        </div>
+
+        <div class="field" id="customDaysWrap" style="display:none;">
+          <label for="customDays">Custom Days</label>
+          <input id="customDays" type="number" min="1" max="365" value="180" />
+        </div>
+
+        <div class="field">
+          <label for="choiceRate">Choice Rate (%)</label>
+          <input id="choiceRate" type="number" step="0.01" value="4.25" />
+          <div class="mini">Enter the Choice rate for the selected maturity.</div>
+        </div>
+
+        <div class="field">
+          <button type="button" class="scenario-toggle" id="scenarioToggle">
+            <div class="scenario-toggle-row">
+              <span>FOMC Assumptions</span>
+              <span id="scenarioToggleLabel">Optional</span>
+            </div>
+          </button>
+          <div class="scenario-panel" id="scenarioPanel">
+            <div class="meeting-row">
+              <select class="meeting-date-select">
+                <option value="">Meeting</option>
+                <option value="2026-06-17">06/17/26</option>
+                <option value="2026-07-29">07/29/26</option>
+                <option value="2026-09-16">09/16/26</option>
+                <option value="2026-10-28">10/28/26</option>
+                <option value="2026-12-09">12/09/26</option>
+              </select>
+              <select class="meeting-action-select">
+                <option value="">Action</option>
+                <option value="hike">Hike</option>
+                <option value="cut">Cut</option>
+              </select>
+              <select class="meeting-size-select">
+                <option value="">Size</option>
+                <option value="25">25bp</option>
+                <option value="50">50bp</option>
+              </select>
+            </div>
+            <div id="extraMeetings"></div>
+            <div class="scenario-actions">
+              <button type="button" class="add-meeting-btn" id="addMeetingBtn">Add Another Meeting</button>
+              <button type="button" class="clear-meetings-btn" id="clearMeetingsBtn">Clear Assumptions</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="viz">
+        <div class="export-row">
+          <button type="button" class="export-btn" id="openExportBtn">Export Snapshot</button>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Selected Pool Rate</div>
+            <div class="value" id="poolRateDisplay">-</div>
+            <div class="sub" id="poolRateSub">-</div>
+          </div>
+          <div class="stat">
+            <div class="label">Choice Rate</div>
+            <div class="value" id="choiceRateDisplay">-</div>
+            <div class="sub">Entered fixed rate</div>
+          </div>
+          <div class="stat">
+            <div class="label">Holding Period</div>
+            <div class="value" id="daysDisplay">-</div>
+            <div class="sub">Selected maturity</div>
+          </div>
+          <div class="stat">
+            <div class="label">Pool Earnings</div>
+            <div class="value" id="poolEarningsDisplay">-</div>
+            <div class="sub" id="poolEndingSub">-</div>
+          </div>
+          <div class="stat">
+            <div class="label">Choice Earnings</div>
+            <div class="value" id="choiceEarningsDisplay">-</div>
+            <div class="sub" id="choiceEndingSub">-</div>
+          </div>
+          <div class="stat">
+            <div class="label">Interest Difference</div>
+            <div class="value gain" id="differenceDisplay">-</div>
+            <div class="sub" id="differenceSub">-</div>
+          </div>
+        </div>
+
+        <div class="insight">
+          <div class="label">Summary</div>
+          <div class="text" id="insightText">-</div>
+        <div class="subtext" id="insightSubtext" style="display:none;"></div>
+        </div>
+
+        <div class="viz-header">
+          <div>
+            <h2>Projected Earnings</h2>
+            <p>Comparison of projected interest earned over the selected holding period.</p>
+          </div>
+        </div>
+
+        <div class="chart-shell">
+          <canvas id="comparisonChart" height="220"></canvas>
+        </div>
+
+        <div class="comparison-strip">
+          <div class="mini-card">
+            <div class="eyebrow" id="rowPoolName">-</div>
+            <div class="line"><span id="rowPoolRate">-</span> • <span id="rowPoolEarn">-</span> interest</div>
+            <div class="line">Ending value: <span id="rowPoolValue">-</span></div>
+          </div>
+          <div class="mini-card">
+            <div class="eyebrow">Choice</div>
+            <div class="line"><span id="rowChoiceRate">-</span> • <span id="rowChoiceEarn">-</span> interest</div>
+            <div class="line">Ending value: <span id="rowChoiceValue">-</span></div>
+          </div>
+        </div>
+
+        <div class="footer-note" id="footerNote">-</div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="exportModal">
+    <div class="modal-card">
+      <h3>Export Snapshot</h3>
+      <p>Add presentation details for a clean client-ready export.</p>
+      <div class="modal-grid">
+        <div class="field">
+          <label for="preparedForInput">Prepared For</label>
+          <input id="preparedForInput" type="text" placeholder="Client name" />
+        </div>
+        <div class="field">
+          <label for="preparedByInput">Prepared By</label>
+          <input id="preparedByInput" type="text" placeholder="Advisor name" />
+        </div>
+        <div class="field">
+          <label for="clientTypeInput">Client Type</label>
+          <select id="clientTypeInput">
+            <option value="">Select client type</option>
+            <option value="school">School District</option>
+            <option value="county">County / Municipality</option>
+            <option value="fire">Fire District</option>
+            <option value="police">Police / Public Safety</option>
+            <option value="utility">Utility / Water District</option>
+            <option value="operating">Operating / Payroll Funds</option>
+            <option value="bond">Bond Proceeds</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-secondary" id="closeExportBtn">Cancel</button>
+        <button type="button" class="modal-secondary" id="openEmailBtn">Send Email</button>
+        <button type="button" class="modal-primary" id="downloadExportBtn">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="emailModal">
+    <div class="modal-card">
+      <h3>Send Client Email</h3>
+      <p>Review and edit the message before sending.</p>
+      <div class="modal-grid">
+        <div class="field">
+          <label for="emailToInput">To</label>
+          <input id="emailToInput" type="email" placeholder="client@example.com" />
+        </div>
+        <div class="field">
+          <label for="emailSubjectInput">Subject</label>
+          <input id="emailSubjectInput" type="text" />
+        </div>
+        <div class="field">
+          <label for="emailBodyInput">Email Body</label>
+          <textarea id="emailBodyInput" rows="10" style="width:100%; border-radius:12px; border:1px solid rgba(119,189,240,0.16); background:rgba(255,255,255,0.04); color:#fff; padding:14px; font:inherit;"></textarea>
+        </div>
+        <div id="emailStatus" style="display:none; color: rgba(232,242,251,0.72); font-size:13px;"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-secondary" id="closeEmailBtn">Cancel</button>
+        <button type="button" class="modal-primary" id="sendEmailBtn">Send Email</button>
+      </div>
+      <div id="emailSuccessState" style="display:none; text-align:center; padding:18px 6px 4px;">
+        <div style="width:56px; height:56px; margin:0 auto 12px; border-radius:999px; background:rgba(83,222,192,0.14); border:1px solid rgba(83,222,192,0.3); display:flex; align-items:center; justify-content:center; color:#53dec0; font-size:28px; font-weight:700;">✓</div>
+        <div style="font-size:22px; font-weight:700; color:#ffffff; margin-bottom:6px;">Email Sent</div>
+        <div style="font-size:13px; color:rgba(232,242,251,0.68); margin-bottom:14px;">Your email and PDF snapshot were sent successfully.</div>
+        <button type="button" class="modal-primary" id="closeEmailSuccessBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="export-sheet" id="exportSheet">
+    <div class="export-header">
+      <div>
+        <div class="brand-copy">
+          <div class="top">DEEP BLUE</div>
+          <div class="sub">Investment Advisors</div>
+        </div>
+        <h1 class="export-title">Choice Pool Comparison Snapshot</h1>
+        <div class="export-meta" id="exportMeta"></div>
+      </div>
+      <div class="export-meta right" id="exportMetaRight"></div>
+    </div>
+    <div class="export-kpis">
+      <div class="export-kpi"><div class="label">Liquidity Pool</div><div class="value" id="exportPoolName">-</div></div>
+      <div class="export-kpi"><div class="label">Choice Rate</div><div class="value" id="exportChoiceRate">-</div></div>
+      <div class="export-kpi"><div class="label">Term</div><div class="value" id="exportTerm">-</div></div>
+      <div class="export-kpi"><div class="label">Interest Difference</div><div class="value" id="exportDifference">-</div></div>
+    </div>
+    <div class="export-summary">
+      <div class="export-summary-main" id="exportSummary">-</div>
+      <div class="export-summary-sub" id="exportSummarySub" style="display:none;"></div>
+    </div>
+    <div class="export-chart-wrap">
+      <canvas id="exportChart" width="1000" height="340"></canvas>
+    </div>
+    <div class="export-bottom">
+      <div class="export-card">
+        <h4>Scenario & Assumptions</h4>
+        <ul id="exportAssumptions"></ul>
+      </div>
+      <div class="export-card">
+        <h4>Potential Budget Impact</h4>
+        <ul id="exportImpact"></ul>
+      </div>
+    </div>
+    <div class="export-disclosures" id="exportDisclosuresText">
+      <span>Results shown are estimates only and not a final investment quote or guaranteed outcome. Liquidity pool yields reflect the most recently published rates available from each provider website.</span>
+    </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script>
+    const poolButton = document.getElementById('poolButton');
+    const poolMenu = document.getElementById('poolMenu');
+    const poolSelectWrap = document.getElementById('poolSelectWrap');
+    const investmentAmountInput = document.getElementById('investmentAmount');
+    const tenorButton = document.getElementById('tenorButton');
+    const tenorMenu = document.getElementById('tenorMenu');
+    const tenorSelectWrap = document.getElementById('tenorSelectWrap');
+    const customDaysWrap = document.getElementById('customDaysWrap');
+    const customDaysInput = document.getElementById('customDays');
+    const choiceRateInput = document.getElementById('choiceRate');
+    const scenarioToggle = document.getElementById('scenarioToggle');
+    const scenarioPanel = document.getElementById('scenarioPanel');
+    const scenarioToggleLabel = document.getElementById('scenarioToggleLabel');
+    const addMeetingBtn = document.getElementById('addMeetingBtn');
+    const clearMeetingsBtn = document.getElementById('clearMeetingsBtn');
+    const extraMeetings = document.getElementById('extraMeetings');
+    const openExportBtn = document.getElementById('openExportBtn');
+    const exportModal = document.getElementById('exportModal');
+    const closeExportBtn = document.getElementById('closeExportBtn');
+    const downloadExportBtn = document.getElementById('downloadExportBtn');
+    const preparedForInput = document.getElementById('preparedForInput');
+    const preparedByInput = document.getElementById('preparedByInput');
+    const clientTypeInput = document.getElementById('clientTypeInput');
+    const openEmailBtn = document.getElementById('openEmailBtn');
+    const emailModal = document.getElementById('emailModal');
+    const closeEmailBtn = document.getElementById('closeEmailBtn');
+    const sendEmailBtn = document.getElementById('sendEmailBtn');
+    const emailToInput = document.getElementById('emailToInput');
+    const emailSubjectInput = document.getElementById('emailSubjectInput');
+    const emailBodyInput = document.getElementById('emailBodyInput');
+    const emailStatus = document.getElementById('emailStatus');
+    const emailSuccessState = document.getElementById('emailSuccessState');
+    const closeEmailSuccessBtn = document.getElementById('closeEmailSuccessBtn');
+    let funds = [];
+    let currentDays = 60;
+    let lastState = null;
+
+    function formatMoney(num) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+    }
+    function formatPct(num) {
+      return `${Number(num).toFixed(2)}%`;
+    }
+    function parseAmount(text) {
+      return Number(String(text).replace(/,/g, '')) || 0;
+    }
+    function formatAmountInput(el) {
+      const val = parseAmount(el.value);
+      if (!val) return;
+      el.value = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(val);
+    }
+    function getSelectedDays() {
+      const tenorValue = tenorButton.dataset.value || '60';
+      return tenorValue === 'custom'
+        ? Math.max(1, Math.min(365, Number(customDaysInput.value || 0)))
+        : Number(tenorValue);
+    }
+    function calcSimpleEarnings(principal, annualRatePct, days) {
+      return principal * (annualRatePct / 100) * (days / 365);
+    }
+    function getScenarioRows() {
+      return Array.from(document.querySelectorAll('.meeting-row'));
+    }
+    function getScenarioMoves() {
+      return getScenarioRows().map(row => {
+        const date = row.querySelector('.meeting-date-select')?.value;
+        const action = row.querySelector('.meeting-action-select')?.value;
+        const size = Number(row.querySelector('.meeting-size-select')?.value || 0);
+        if (!date || !action || !size) return null;
+        return { date, action, size };
+      }).filter(Boolean);
+    }
+    function getScenarioImpactPct(size, action) {
+      const passThroughPct = (size / 100) * 0.4;
+      return action === 'cut' ? -passThroughPct : passThroughPct;
+    }
+    function formatMeetingLabel(dateStr) {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return `${month}/${day}/${String(year).slice(-2)}`;
+    }
+    function buildScenarioSummary(moves) {
+      if (!moves.length) return '';
+      const parts = moves.map(move => {
+        const direction = move.action === 'cut' ? 'cut' : 'hike';
+        return `${move.size} basis point Fed ${direction} after the ${formatMeetingLabel(move.date)} FOMC meeting`;
+      });
+      if (parts.length === 1) return `Assumes a ${parts[0]}.`;
+      if (parts.length === 2) return `Assumes a ${parts[0]} and a ${parts[1]}.`;
+      return `Assumes ${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}.`;
+    }
+    function buildScenarioBullets(moves) {
+      const bullets = [];
+      if (!moves.length) {
+        bullets.push('Base case, no FOMC adjustments applied.');
+      } else {
+        moves.forEach(move => {
+          const direction = move.action === 'cut' ? 'Cut' : 'Hike';
+          const realized = Math.abs(getScenarioImpactPct(move.size, move.action) * 100).toFixed(0);
+          bullets.push(`${formatMeetingLabel(move.date)} FOMC meeting: ${direction} ${move.size} bps, modeled as ${realized} bps of estimated pool yield impact.`);
+        });
+      }
+      bullets.push('Assumed FOMC moves are translated into estimated pool yield changes using portfolio pass-through assumptions.');
+      bullets.push('Estimated pass-through reflects recently published portfolio characteristics, including fixed/floating allocation and WAM/WAL profile.');
+      bullets.push('For longer holding periods, modeled pool earnings reflect a phased yield realization path based on WAL and estimated portfolio turnover.');
+      return bullets;
+    }
+    function buildImpactBullets(clientType, excessEarnings) {
+      if (!(excessEarnings > 0) || !clientType) {
+        return ['Positive excess earnings can be translated into budget-relevant equivalents based on client type.'];
+      }
+      const amount = excessEarnings;
+      const formatUnits = (value) => value >= 10 ? value.toFixed(0) : value.toFixed(1);
+      const benchmarks = {
+        school: [
+          { cost: 180000, label: 'school buses' },
+          { cost: 5500, label: 'years of bus maintenance' },
+          { cost: 12000, label: 'classroom technology or equipment blocks' }
+        ],
+        county: [
+          { cost: 65000, label: 'municipal pickup or utility vehicles' },
+          { cost: 25000, label: 'equipment budget blocks' },
+          { cost: 10000, label: 'smaller public works supply blocks' }
+        ],
+        fire: [
+          { cost: 4500, label: 'sets of turnout gear' },
+          { cost: 65000, label: 'support vehicles' },
+          { cost: 15000, label: 'smaller equipment replacement blocks' }
+        ],
+        police: [
+          { cost: 20000, label: 'years of officer overtime' },
+          { cost: 70000, label: 'patrol vehicles' },
+          { cost: 12000, label: 'smaller public safety equipment blocks' }
+        ],
+        utility: [
+          { cost: 75000, label: 'service trucks or field vehicles' },
+          { cost: 25000, label: 'equipment budget blocks' },
+          { cost: 10000, label: 'meter, pump, or field supply blocks' }
+        ],
+        operating: [
+          { cost: 100000, label: 'payroll float equivalents' },
+          { cost: 25000, label: 'months of operating cushion' },
+          { cost: 10000, label: 'routine working capital blocks' }
+        ],
+        bond: [
+          { cost: 100000, label: 'carry-cost offset blocks' },
+          { cost: 250000, label: '$250,000 project funding blocks' },
+          { cost: 50000, label: 'interim project cash management blocks' }
+        ]
+      };
+      const selected = benchmarks[clientType] || [];
+      return selected.map(item => `Approximately ${formatUnits(amount / item.cost)} ${item.label}.`);
+    }
+    function getEffectiveRate(fund) {
+      return fund.daily ?? fund.weekly ?? 0;
+    }
+
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Selected Pool Earnings',
+            data: [],
+            borderColor: '#78bef0',
+            backgroundColor: 'rgba(120,190,240,0.12)',
+            borderWidth: 3.5,
+            pointRadius: 0,
+            tension: 0,
+            fill: false
+          },
+          {
+            label: 'Choice Earnings',
+            data: [],
+            borderColor: '#53dec0',
+            backgroundColor: 'rgba(83,222,192,0.12)',
+            borderWidth: 3.5,
+            pointRadius: 0,
+            tension: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: {
+              color: 'rgba(232,242,251,0.78)',
+              font: { size: 13 },
+              usePointStyle: true,
+              pointStyle: 'line',
+              padding: 18
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(10,22,37,0.96)',
+            borderColor: 'rgba(119,189,240,0.18)',
+            borderWidth: 1,
+            titleColor: '#ffffff',
+            bodyColor: 'rgba(232,242,251,0.86)',
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: 'rgba(232,242,251,0.48)',
+              font: { size: 13 },
+              maxRotation: 0,
+              autoSkip: false,
+              callback: function(value, index) {
+                const label = this.getLabelForValue(value);
+                const day = parseInt(label, 10);
+                const interval = currentDays <= 120 ? 5 : currentDays <= 240 ? 10 : currentDays <= 330 ? 15 : 30;
+                return day % interval === 0 ? label : '';
+              }
+            },
+            grid: { display: false }
+          },
+          y: {
+            ticks: {
+              color: 'rgba(232,242,251,0.48)',
+              font: { size: 13 },
+              callback: (v) => formatMoney(v)
+            },
+            grid: { color: 'rgba(119,189,240,0.07)' }
+          }
+        }
+      }
+    });
+
+    function update() {
+      const selectedPoolName = poolButton.dataset.value;
+      const fund = funds.find(f => f.name === selectedPoolName) || funds[0];
+      if (!fund) return;
+      const principal = parseAmount(investmentAmountInput.value);
+      const days = getSelectedDays();
+      currentDays = days;
+      const choiceRate = Number(choiceRateInput.value) || 0;
+      const poolRate = getEffectiveRate(fund);
+      const poolDisplayRate = fund.displayRate ?? poolRate;
+      const moves = getScenarioMoves();
+      const totalScenarioImpact = moves.reduce((sum, move) => sum + getScenarioImpactPct(move.size, move.action), 0);
+      const startDate = new Date();
+      function daysUntilMeeting(meetingDateStr) {
+        const meetingDate = new Date(meetingDateStr + 'T00:00:00');
+        const diffMs = meetingDate - startDate;
+        return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+      }
+      const poolEarningsFromPath = (() => {
+        let total = 0;
+        for (let d = 1; d <= days; d++) {
+          let steppedRate = poolRate;
+          if (moves.length) {
+            moves.forEach((move) => {
+              const triggerDay = daysUntilMeeting(move.date);
+              const impact = getScenarioImpactPct(move.size, move.action);
+              if (d >= triggerDay + 3) {
+                steppedRate += impact;
+              } else if (d > triggerDay) {
+                steppedRate += impact * ((d - triggerDay) / 3);
+              }
+            });
+          }
+          total += principal * (steppedRate / 100) / 365;
+        }
+        return total;
+      })();
+      const scenarioAdjustedPoolRate = poolRate + totalScenarioImpact;
+      const averageScenarioPoolRate = principal ? (poolEarningsFromPath / principal) * 365 * 100 / days : poolRate;
+      const poolEarnings = moves.length ? poolEarningsFromPath : calcSimpleEarnings(principal, poolRate, days);
+      const choiceEarnings = calcSimpleEarnings(principal, choiceRate, days);
+      const poolEnding = principal + poolEarnings;
+      const choiceEnding = principal + choiceEarnings;
+      const diff = choiceEarnings - poolEarnings;
+      const diffPct = principal ? (diff / principal) * 100 : 0;
+      const asOfRaw = window.ratesAsOfDate;
+      const asOfDate = asOfRaw ? new Date(`${asOfRaw}T00:00:00`) : new Date();
+      const asOf = asOfDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const choiceAsOf = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      document.getElementById('poolRateDisplay').textContent = formatPct(poolDisplayRate);
+      document.getElementById('poolRateSub').textContent = moves.length
+        ? `${fund.daily != null ? 'Current daily rate' : 'Current 7-day yield'} • avg scenario rate`
+        : (fund.daily != null ? 'Current daily rate' : 'Current 7-day yield');
+      document.getElementById('choiceRateDisplay').textContent = formatPct(choiceRate);
+      document.getElementById('daysDisplay').textContent = `${days} Days`;
+      document.getElementById('poolEarningsDisplay').textContent = formatMoney(poolEarnings);
+      document.getElementById('choiceEarningsDisplay').textContent = formatMoney(choiceEarnings);
+      document.getElementById('poolEndingSub').textContent = `Ending value: ${formatMoney(poolEnding)}`;
+      document.getElementById('choiceEndingSub').textContent = `Ending value: ${formatMoney(choiceEnding)}`;
+      document.getElementById('differenceDisplay').textContent = `${diff >= 0 ? '+' : '-'}${formatMoney(Math.abs(diff))}`;
+      document.getElementById('asOfDisplay').innerHTML = `Liquidity Pool rates as of ${asOf}<br>Choice rate as of ${choiceAsOf}`;
+      document.getElementById('differenceSub').textContent = diff >= 0 ? `${diffPct.toFixed(2)}% of invested amount` : `Selected pool projects higher earnings over this period`;
+      scenarioToggleLabel.textContent = moves.length ? `${moves.length} active` : 'Optional';
+      const scenarioSummaryText = buildScenarioSummary(moves);
+      document.getElementById('insightText').textContent = diff >= 0
+        ? `Choice is projected to generate approximately ${formatMoney(diff)} in additional interest versus ${fund.name} on ${formatMoney(principal)} over ${days} days.`
+        : `${fund.name} is projected to generate approximately ${formatMoney(Math.abs(diff))} in additional interest versus Choice on ${formatMoney(principal)} over ${days} days.`;
+      const insightSubtext = document.getElementById('insightSubtext');
+      insightSubtext.textContent = scenarioSummaryText;
+      insightSubtext.style.display = scenarioSummaryText ? 'block' : 'none';
+
+      document.getElementById('rowPoolName').textContent = fund.name;
+      document.getElementById('rowPoolRate').textContent = formatPct(moves.length ? averageScenarioPoolRate : poolDisplayRate);
+      document.getElementById('rowPoolEarn').textContent = formatMoney(poolEarnings);
+      document.getElementById('rowPoolValue').textContent = formatMoney(poolEnding);
+      document.getElementById('rowChoiceRate').textContent = formatPct(choiceRate);
+      document.getElementById('rowChoiceEarn').textContent = formatMoney(choiceEarnings);
+      document.getElementById('rowChoiceValue').textContent = formatMoney(choiceEnding);
+      document.getElementById('footerNote').innerHTML = `
+        <ul>
+          <li>Results shown are estimates only and not a final investment quote or guaranteed outcome.</li>
+          <li>Liquidity pool yields reflect the most recently published rates available from each provider website.</li>
+          <li>Projected earnings are calculated using simple interest on a 365-day basis: Principal × Rate × (Days / 365).</li>
+          <li>Assumed FOMC scenario impacts are modeled using pool pass-through behavior informed by recently published fixed/floating allocation and WAM/WAL data.</li>
+        </ul>
+      `;
+
+      const labels = [];
+      const poolSeries = [];
+      const choiceSeries = [];
+      for (let d = 0; d <= days; d += 1) {
+        labels.push(`${d}d`);
+        let steppedRate = poolRate;
+        if (moves.length) {
+          moves.forEach((move) => {
+            const triggerDay = daysUntilMeeting(move.date);
+            const impact = getScenarioImpactPct(move.size, move.action);
+            if (d >= triggerDay + 3) {
+              steppedRate += impact;
+            } else if (d > triggerDay) {
+              steppedRate += impact * ((d - triggerDay) / 3);
+            }
+          });
+        }
+        if (d === 0) {
+          poolSeries.push(0);
+        } else {
+          const priorPool = poolSeries[poolSeries.length - 1] || 0;
+          poolSeries.push(priorPool + (principal * (steppedRate / 100) / 365));
+        }
+        choiceSeries.push(calcSimpleEarnings(principal, choiceRate, d));
+      }
+      lastState = {
+        fundName: fund.name,
+        principal,
+        days,
+        choiceRate,
+        poolDisplayRate: moves.length ? averageScenarioPoolRate : poolDisplayRate,
+        poolEarnings,
+        choiceEarnings,
+        diff,
+        asOf,
+        poolAsOf: asOf,
+        choiceAsOf,
+        summaryText: document.getElementById('insightText').textContent,
+        summarySubtext: document.getElementById('insightSubtext').textContent,
+        moves: moves.map(move => ({ ...move })),
+        labels: [...labels],
+        poolSeries: [...poolSeries],
+        choiceSeries: [...choiceSeries]
+      };
+      chart.data.labels = labels;
+      chart.data.datasets[0].label = `${fund.name} Earnings`;
+      chart.data.datasets[0].data = poolSeries;
+      chart.data.datasets[1].data = choiceSeries;
+      chart.update();
+    }
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const renderState = params.get('state');
+      if (renderState) {
+        lastState = JSON.parse(decodeURIComponent(renderState));
+        window.ratesAsOfDate = lastState.poolAsOf || lastState.asOf || null;
+        fillExportState();
+        return;
+      }
+      let data;
+      if (window.__EMBEDDED_RATES__) {
+        data = window.__EMBEDDED_RATES__;
+      } else {
+        const res = await fetch(`./rates.json?v=${Date.now()}`);
+        data = await res.json();
+      }
+      window.ratesAsOfDate = data.asOfDate || null;
+      funds = (data.funds || []).filter(f => f.effectiveRate != null);
+      funds.sort((a, b) => a.name.localeCompare(b.name));
+      funds.forEach((fund, idx) => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'custom-select-option';
+        option.dataset.value = fund.name;
+        option.textContent = fund.name;
+        option.addEventListener('click', () => {
+          poolButton.textContent = fund.name;
+          poolButton.dataset.value = fund.name;
+          poolMenu.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('is-active'));
+          option.classList.add('is-active');
+          poolMenu.classList.remove('open');
+          poolButton.setAttribute('aria-expanded', 'false');
+          update();
+        });
+        poolMenu.appendChild(option);
+      });
+      if (funds.length) {
+        poolButton.textContent = funds[0].name;
+        poolButton.dataset.value = funds[0].name;
+        const first = poolMenu.querySelector('.custom-select-option');
+        if (first) first.classList.add('is-active');
+      }
+      customDaysWrap.style.display = 'none';
+      update();
+    }
+
+    scenarioToggle.addEventListener('click', () => {
+      scenarioPanel.classList.toggle('open');
+    });
+
+    addMeetingBtn.addEventListener('click', () => {
+      const row = document.querySelector('.meeting-row').cloneNode(true);
+      row.querySelectorAll('select').forEach(select => select.value = '');
+      extraMeetings.appendChild(row);
+      row.querySelectorAll('select').forEach(select => {
+        select.addEventListener('change', update);
+      });
+      update();
+    });
+
+    clearMeetingsBtn.addEventListener('click', () => {
+      document.querySelectorAll('.meeting-row').forEach((row, idx) => {
+        row.querySelectorAll('select').forEach(select => select.value = '');
+        if (idx > 0) row.remove();
+      });
+      extraMeetings.innerHTML = '';
+      update();
+    });
+
+    openExportBtn.addEventListener('click', () => {
+      exportModal.classList.add('open');
+    });
+
+    closeExportBtn.addEventListener('click', () => {
+      exportModal.classList.remove('open');
+    });
+
+    exportModal.addEventListener('click', (e) => {
+      if (e.target === exportModal) exportModal.classList.remove('open');
+    });
+
+    function fillExportState() {
+      if (!lastState) return;
+      const exportMeta = document.getElementById('exportMeta');
+      const exportMetaRight = document.getElementById('exportMetaRight');
+      const exportPoolName = document.getElementById('exportPoolName');
+      const exportChoiceRate = document.getElementById('exportChoiceRate');
+      const exportTerm = document.getElementById('exportTerm');
+      const exportDifference = document.getElementById('exportDifference');
+      const exportSummary = document.getElementById('exportSummary');
+      const exportAssumptions = document.getElementById('exportAssumptions');
+      const exportImpact = document.getElementById('exportImpact');
+      const exportSummarySub = document.getElementById('exportSummarySub');
+      const leftMeta = [];
+      const rightMeta = [];
+      const preparedFor = lastState.preparedFor || preparedForInput.value || '';
+      const preparedBy = lastState.preparedBy || preparedByInput.value || '';
+      const clientType = lastState.clientType || clientTypeInput.value || '';
+      if (preparedFor) leftMeta.push(`Prepared for: ${preparedFor}`);
+      if (preparedBy) leftMeta.push(`Prepared by: ${preparedBy}`);
+      if (lastState.poolAsOf) rightMeta.push(`Liquidity Pool rates as of ${lastState.poolAsOf}`);
+      if (lastState.choiceAsOf) rightMeta.push(`Choice rate as of ${lastState.choiceAsOf}`);
+      exportMeta.innerHTML = leftMeta.join('<br>');
+      exportMetaRight.innerHTML = rightMeta.join('<br>');
+      exportPoolName.textContent = lastState.fundName;
+      exportChoiceRate.textContent = formatPct(lastState.choiceRate);
+      exportTerm.textContent = `${lastState.days} Days`;
+      exportDifference.textContent = `${lastState.diff >= 0 ? '+' : '-'}${formatMoney(Math.abs(lastState.diff))}`;
+      exportDifference.style.color = lastState.diff >= 0 ? '#53dec0' : '#ffffff';
+      exportSummary.textContent = lastState.summaryText;
+      exportSummarySub.textContent = lastState.summarySubtext || '';
+      exportSummarySub.style.display = lastState.summarySubtext ? 'block' : 'none';
+      exportAssumptions.innerHTML = buildScenarioBullets(lastState.moves).map(item => `<li>${item}</li>`).join('');
+      exportImpact.innerHTML = buildImpactBullets(clientType, lastState.diff).map(item => `<li>${item}</li>`).join('');
+
+      if (new URLSearchParams(window.location.search).get('render') === '1') { document.body.classList.add('render-pdf'); }
+      const exportCtx = document.getElementById('exportChart').getContext('2d');
+      if (window.exportChartInstance) window.exportChartInstance.destroy();
+      window.exportChartInstance = new Chart(exportCtx, {
+        type: 'line',
+        data: {
+          labels: lastState.labels,
+          datasets: [
+            { label: `${lastState.fundName} Earnings`, data: lastState.poolSeries, borderColor: '#78bef0', borderWidth: 3, pointRadius: 0, tension: 0, fill: false },
+            { label: 'Choice Earnings', data: lastState.choiceSeries, borderColor: '#53dec0', borderWidth: 3, pointRadius: 0, tension: 0, fill: false }
+          ]
+        },
+        options: {
+          responsive: false,
+          animation: false,
+          layout: { padding: { left: 340, right: 0, top: 4, bottom: 0 } },
+          plugins: { legend: { labels: { color: '#e8f2fb', boxWidth: 26, boxHeight: 10 } } },
+          scales: {
+            x: { offset: false, ticks: { color: 'rgba(232,242,251,0.6)', maxRotation: 0, autoSkip: true }, grid: { display: false } },
+            y: { ticks: { color: 'rgba(232,242,251,0.6)', callback: (v) => formatMoney(v) }, grid: { color: 'rgba(119,189,240,0.08)' } }
+          }
+        }
+      });
+    }
+
+    downloadExportBtn.addEventListener('click', async () => {
+      if (!lastState) return;
+      fillExportState();
+      exportModal.classList.remove('open');
+      const renderState = { ...lastState, preparedFor: preparedForInput.value || '', preparedBy: preparedByInput.value || '', clientType: clientTypeInput.value || '' };
+      const state = encodeURIComponent(JSON.stringify(renderState));
+      const pdfResponse = await fetch(`/__render_pdf__?page=8103-dbia-choice-calculator.html&wait=1200&state=${state}`);
+      if (!pdfResponse.ok) throw new Error('PDF render failed');
+      const pdfBlob = await pdfResponse.blob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = pdfUrl;
+      a.download = 'dbia-choice-snapshot.pdf';
+      a.click();
+      URL.revokeObjectURL(pdfUrl);
+    });
+
+    openEmailBtn.addEventListener('click', () => {
+      if (!lastState) return;
+      const recipientName = preparedForInput.value || 'Client';
+      emailSubjectInput.value = `${lastState.fundName} vs. Choice Opportunity Snapshot`;
+      emailBodyInput.value = `Hi ${recipientName},\n\nI hope you are well.\n\nI was reviewing your LGIP allocations based on the most recent information published online and noticed a sizable position in ${lastState.fundName}. Our traders identified a relative value opportunity that may be worth considering given the recent volatility in the bond market.\n\nBased on the attached analysis, Choice is projected to generate approximately ${formatMoney(Math.abs(lastState.diff))} in additional interest over ${lastState.days} days compared with ${lastState.fundName}, based on the assumptions shown.\n\nI attached a snapshot for reference. Happy to discuss if helpful.\n\nThank you,\n${preparedByInput.value || ''}`;
+      emailModal.classList.add('open');
+    });
+
+    closeEmailBtn.addEventListener('click', () => {
+      emailModal.classList.remove('open');
+      emailSuccessState.style.display = 'none';
+    });
+
+    closeEmailSuccessBtn.addEventListener('click', () => {
+      emailModal.classList.remove('open');
+      emailSuccessState.style.display = 'none';
+    });
+
+    emailModal.addEventListener('click', (e) => {
+      if (e.target === emailModal) emailModal.classList.remove('open');
+    });
+
+    sendEmailBtn.addEventListener('click', async () => {
+      if (!lastState) return;
+      fillExportState();
+      emailStatus.style.display = 'block';
+      emailStatus.textContent = 'Sending...';
+      emailSuccessState.style.display = 'none';
+      sendEmailBtn.disabled = true;
+      try {
+        const renderState = { ...lastState, preparedFor: preparedForInput.value || '', preparedBy: preparedByInput.value || '', clientType: clientTypeInput.value || '' };
+        const state = encodeURIComponent(JSON.stringify(renderState));
+        const pdfResponse = await fetch(`/__render_pdf__?page=8103-dbia-choice-calculator.html&wait=1200&state=${state}`);
+        if (!pdfResponse.ok) throw new Error('PDF render failed');
+        const pdfBlob = await pdfResponse.blob();
+        const arrayBuffer = await pdfBlob.arrayBuffer();
+        const binary = Array.from(new Uint8Array(arrayBuffer)).map(b => String.fromCharCode(b)).join('');
+        const base64 = btoa(binary);
+
+        const payload = {
+          to: emailToInput.value.trim(),
+          subject: emailSubjectInput.value.trim(),
+          body: emailBodyInput.value,
+          senderName: preparedByInput.value.trim() || 'Vito Resciniti',
+          senderClientId: 'argusreach',
+          pdfPath: null,
+          pdfBase64: base64,
+          pdfFilename: 'dbia-choice-snapshot.pdf'
+        };
+
+        const response = await fetch('/__send_demo_email__', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Send failed');
+        emailStatus.textContent = 'Sent';
+        emailStatus.style.color = '#53dec0';
+        emailSuccessState.style.display = 'block';
+      } catch (err) {
+        emailStatus.textContent = err.message || 'Send failed';
+        emailStatus.style.color = '#ffb0b0';
+      } finally {
+        sendEmailBtn.disabled = false;
+      }
+    });
+
+    document.querySelectorAll('.meeting-row select').forEach(select => {
+      select.addEventListener('change', update);
+    });
+
+    tenorButton.addEventListener('click', () => {
+      const open = tenorMenu.classList.toggle('open');
+      tenorButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    tenorMenu.querySelectorAll('.custom-select-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const value = option.dataset.value;
+        tenorButton.textContent = value === 'custom' ? 'Custom' : value;
+        tenorButton.dataset.value = value;
+        tenorMenu.querySelectorAll('.custom-select-option').forEach(opt => opt.classList.remove('is-active'));
+        option.classList.add('is-active');
+        tenorMenu.classList.remove('open');
+        tenorButton.setAttribute('aria-expanded', 'false');
+        customDaysWrap.style.display = value === 'custom' ? 'block' : 'none';
+        update();
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!tenorSelectWrap.contains(e.target)) {
+        tenorMenu.classList.remove('open');
+        tenorButton.setAttribute('aria-expanded', 'false');
+      }
+      if (!poolSelectWrap.contains(e.target)) {
+        poolMenu.classList.remove('open');
+        poolButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+    [customDaysInput, choiceRateInput].forEach(el => {
+      el.addEventListener('input', update);
+      el.addEventListener('change', update);
+    });
+
+    poolButton.addEventListener('click', () => {
+      const open = poolMenu.classList.toggle('open');
+      poolButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    investmentAmountInput.addEventListener('change', () => { formatAmountInput(investmentAmountInput); update(); });
+    investmentAmountInput.addEventListener('blur', () => { formatAmountInput(investmentAmountInput); update(); });
+
+    if (new URLSearchParams(window.location.search).get('render') === '1') document.body.classList.add('render-pdf');
+    init();
+  </script>
+</body>
+</html>
