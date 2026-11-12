@@ -1038,6 +1038,7 @@
             <div class="eyebrow" id="rowPoolName">-</div>
             <div class="line"><span id="rowPoolRate">-</span> • <span id="rowPoolEarn">-</span> interest</div>
             <div class="line">Ending value: <span id="rowPoolValue">-</span></div>
+            <div class="line" id="rowPoolPathAvg" style="display:none;"></div>
           </div>
           <div class="mini-card">
             <div class="eyebrow">Choice</div>
@@ -1449,9 +1450,9 @@
       const asOf = asOfDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       const choiceAsOf = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-      document.getElementById('poolRateDisplay').textContent = formatPct(moves.length ? averageScenarioPoolRate : poolDisplayRate);
+      document.getElementById('poolRateDisplay').textContent = formatPct(poolDisplayRate);
       document.getElementById('poolRateSub').textContent = moves.length
-        ? `${fund.daily != null ? 'Current daily rate' : 'Current 7-day yield'} ${formatPct(poolDisplayRate)} • average over the term with FOMC assumptions`
+        ? `${fund.daily != null ? 'Current daily rate' : 'Current 7-day yield'}, held until the first assumed FOMC meeting`
         : (fund.daily != null ? 'Current daily rate' : 'Current 7-day yield');
       document.getElementById('choiceRateDisplay').textContent = formatPct(choiceRate);
       document.getElementById('daysDisplay').textContent = `${days} Days`;
@@ -1484,7 +1485,17 @@
       }
 
       document.getElementById('rowPoolName').textContent = fund.name;
-      document.getElementById('rowPoolRate').textContent = formatPct(moves.length ? averageScenarioPoolRate : poolDisplayRate);
+      document.getElementById('rowPoolRate').textContent = formatPct(poolDisplayRate);
+      const rowPoolPathAvg = document.getElementById('rowPoolPathAvg');
+      if (rowPoolPathAvg) {
+        if (moves.length) {
+          rowPoolPathAvg.textContent = `Average path yield over ${days} days with FOMC assumptions: ${formatPct(averageScenarioPoolRate)}`;
+          rowPoolPathAvg.style.display = 'block';
+        } else {
+          rowPoolPathAvg.textContent = '';
+          rowPoolPathAvg.style.display = 'none';
+        }
+      }
       document.getElementById('rowPoolEarn').textContent = formatMoney(poolEarnings);
       document.getElementById('rowPoolValue').textContent = formatMoney(poolEnding);
       document.getElementById('rowChoiceRate').textContent = formatPct(choiceRate);
@@ -1530,7 +1541,8 @@
         principal,
         days,
         choiceRate,
-        poolDisplayRate: moves.length ? averageScenarioPoolRate : poolDisplayRate,
+        poolDisplayRate,
+        averagePathPoolRate: moves.length ? averageScenarioPoolRate : null,
         poolEarnings,
         choiceEarnings,
         diff,
