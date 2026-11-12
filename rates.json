@@ -1,0 +1,185 @@
+{
+  "asOfDate": "2026-11-11",
+  "funds": [
+    {
+      "name": "Florida Prime",
+      "daily": 4.07,
+      "weekly": 4.09,
+      "monthly": 4.07,
+      "yearly": null,
+      "effectiveRate": 4.07,
+      "displayRate": 4.07,
+      "rateSource": "daily"
+    },
+    {
+      "name": "FL STAR Gov't",
+      "daily": 3.8977,
+      "weekly": 3.91,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8977,
+      "displayRate": 3.9,
+      "rateSource": "daily"
+    },
+    {
+      "name": "FL PALM",
+      "daily": null,
+      "weekly": 3.99,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.99,
+      "displayRate": 3.99,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "Florida SAFE",
+      "daily": null,
+      "weekly": 4.0,
+      "monthly": 3.98,
+      "yearly": null,
+      "effectiveRate": 4.0,
+      "displayRate": 4.0,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "FLGIT",
+      "daily": null,
+      "weekly": 3.97,
+      "monthly": 4.68,
+      "yearly": null,
+      "effectiveRate": 3.97,
+      "displayRate": 3.97,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "FLCLASS",
+      "daily": 3.9946,
+      "weekly": 3.9937,
+      "monthly": 3.9851,
+      "yearly": null,
+      "effectiveRate": 3.9946,
+      "displayRate": 3.99,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Texas CLASS (Prime)",
+      "daily": 4.0342,
+      "weekly": 4.0442,
+      "monthly": 4.0331,
+      "yearly": null,
+      "effectiveRate": 4.0342,
+      "displayRate": 4.03,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Texas CLASS (Gov't)",
+      "daily": 3.7783,
+      "weekly": 3.7858,
+      "monthly": 3.7863,
+      "yearly": null,
+      "effectiveRate": 3.7783,
+      "displayRate": 3.78,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexPool (Gov't)",
+      "daily": 3.9043,
+      "weekly": 3.91,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.9043,
+      "displayRate": 3.9,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexPool (Prime)",
+      "daily": 4.0477,
+      "weekly": 4.06,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.0477,
+      "displayRate": 4.05,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexasDaily (Gov't)",
+      "daily": null,
+      "weekly": 3.92,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.92,
+      "displayRate": 3.92,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "TexasDaily Select",
+      "daily": null,
+      "weekly": 4.04,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.04,
+      "displayRate": 4.04,
+      "rateSource": "7-day"
+    },
+    {
+      "name": "LOGIC (Prime)",
+      "daily": 4.0488,
+      "weekly": 4.05,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.0488,
+      "displayRate": 4.05,
+      "rateSource": "daily"
+    },
+    {
+      "name": "TexSTAR (Gov't)",
+      "daily": 3.8937,
+      "weekly": 3.9,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8937,
+      "displayRate": 3.89,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Lone Star Corporate Overnight (Prime)",
+      "daily": 4.0736,
+      "weekly": 4.08,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.0736,
+      "displayRate": 4.07,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Lone Star Government Overnight (Gov't)",
+      "daily": 3.8953,
+      "weekly": 3.9,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 3.8953,
+      "displayRate": 3.9,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Lone Star Corporate Overnight Plus (Prime)",
+      "daily": 4.1056,
+      "weekly": 4.11,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.1056,
+      "displayRate": 4.11,
+      "rateSource": "daily"
+    },
+    {
+      "name": "Texas Connect (Prime)",
+      "daily": 4.0638,
+      "weekly": 4.072,
+      "monthly": null,
+      "yearly": null,
+      "effectiveRate": 4.0638,
+      "displayRate": 4.06,
+      "rateSource": "daily"
+    }
+  ]
+}
